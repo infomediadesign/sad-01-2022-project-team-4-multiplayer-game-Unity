@@ -9,7 +9,7 @@ public class ScoketTest : MonoBehaviour
 
     void Start () {
         Debug.Log ("start");
-        socket = IO.Socket ("http://127.0.0.1:5858");
+        socket = IO.Socket ("http://127.0.0.1:3000");
 
         socket.On (QSocket.EVENT_CONNECT, () => {
             Debug.Log ("Connected");
@@ -19,8 +19,6 @@ public class ScoketTest : MonoBehaviour
         socket.On ("chat", data => {
             Debug.Log ("data : " + data);
         });
-
-        socket.Connect();
     }
 
     private void OnDestroy () {
