@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using _Project.Scripts.MainMenu;
 using _Project.Scripts.Player;
+using _Project.Scripts.UI;
+using _Project.Scripts.Utils;
 using Socket.Quobject.SocketIoClientDotNet.Client;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace _Project.Scripts.Networking
 {
@@ -13,19 +12,15 @@ namespace _Project.Scripts.Networking
     {
         private static SocketManager _instance = null;
         private QSocket socket;
+        private UnityMainThreadDispatcher _unityMainThreadDispatcher;
 
         [SerializeField] private string playerName;
         [SerializeField] private string playerID;
 
-        //---------------------------------------------------------------
-        // TODO : MAYBE WE NEED TO LOCK IT TO MAKE IT THREAD SAFE
-        private Queue<Action> mainThreadActionQueue = new Queue<Action>();
-        //---------------------------------------------------------------
-
         private Dictionary<string, GameObject> playersDictionary = new Dictionary<string, GameObject>();
 
         [SerializeField] private GameObject playerPrefab;
-        [SerializeField] private MainMenuManager mainMenuManager;
+        [SerializeField] private UIManager mainMenuManager;
 
         private void Awake()
         {
@@ -42,16 +37,9 @@ namespace _Project.Scripts.Networking
 
         private void Start()
         {
-            mainMenuManager = FindObjectOfType<MainMenuManager>();
+            mainMenuManager = FindObjectOfType<UIManager>();
+            _unityMainThreadDispatcher = UnityMainThreadDispatcher.GetInstance();
             playerPrefab = Resources.Load<GameObject>("Player");
-        }
-
-        private void Update()
-        {
-            while (mainThreadActionQueue.Count > 0)
-            {
-                mainThreadActionQueue.Dequeue()?.Invoke();
-            }
         }
 
         public static SocketManager GetInstance()
@@ -109,7 +97,7 @@ namespace _Project.Scripts.Networking
 
             socket.On("spawnPlayer", player =>
             {
-                mainThreadActionQueue.Enqueue(() =>
+                _unityMainThreadDispatcher.AddActionToMainThread(() =>
                 {
                     Player playerData = JsonUtility.FromJson<Player>(player.ToString());
                     AddPlayer(playerData);
@@ -119,7 +107,7 @@ namespace _Project.Scripts.Networking
 
             socket.On("playerDisconnected", playerID =>
             {
-                mainThreadActionQueue.Enqueue(() =>
+                _unityMainThreadDispatcher.AddActionToMainThread(() =>
                 {
                     string stringPlayerID = playerID.ToString();
                     RemovePlayer(stringPlayerID);

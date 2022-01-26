@@ -1,11 +1,10 @@
 using _Project.Scripts.Networking;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-namespace _Project.Scripts.MainMenu
+namespace _Project.Scripts.UI
 {
-    public class MainMenuManager : MonoBehaviour
+    public class UIManager : MonoBehaviour
     {
         [SerializeField] private TMP_InputField playerNameInputField;
         [SerializeField] private GameObject uiHolder;
@@ -25,8 +24,6 @@ namespace _Project.Scripts.MainMenu
             //Store this name Somewhere and Switch Scene
             SocketManager.GetInstance().SetPlayerName(playerName);
             SocketManager.GetInstance().Connect();
-            //Basically loads the next scene
-            //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
 
         public void SetUIHolderState(bool state)
