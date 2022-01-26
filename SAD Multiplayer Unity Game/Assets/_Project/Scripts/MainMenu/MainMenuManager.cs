@@ -8,6 +8,7 @@ namespace _Project.Scripts.MainMenu
     public class MainMenuManager : MonoBehaviour
     {
         [SerializeField] private TMP_InputField playerNameInputField;
+        [SerializeField] private GameObject uiHolder;
 
         public void OnConnectClick()
         {
@@ -26,6 +27,11 @@ namespace _Project.Scripts.MainMenu
             SocketManager.GetInstance().Connect();
             //Basically loads the next scene
             //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
+
+        public void SetUIHolderState(bool state)
+        {
+            uiHolder.SetActive(state);
         }
     }
 }

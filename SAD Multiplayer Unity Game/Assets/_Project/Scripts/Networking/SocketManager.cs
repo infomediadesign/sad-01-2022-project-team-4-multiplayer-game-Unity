@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
+using _Project.Scripts.MainMenu;
+using _Project.Scripts.Player;
 using Socket.Quobject.SocketIoClientDotNet.Client;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace _Project.Scripts.Networking
 {
@@ -17,7 +21,12 @@ namespace _Project.Scripts.Networking
         // TODO : MAYBE WE NEED TO LOCK IT TO MAKE IT THREAD SAFE
         private Queue<Action> mainThreadActionQueue = new Queue<Action>();
         //---------------------------------------------------------------
-        
+
+        private Dictionary<string, GameObject> playersDictionary = new Dictionary<string, GameObject>();
+
+        [SerializeField] private GameObject playerPrefab;
+        [SerializeField] private MainMenuManager mainMenuManager;
+
         private void Awake()
         {
             if (_instance == null)
@@ -29,6 +38,12 @@ namespace _Project.Scripts.Networking
             {
                 Destroy(gameObject);
             }
+        }
+
+        private void Start()
+        {
+            mainMenuManager = FindObjectOfType<MainMenuManager>();
+            playerPrefab = Resources.Load<GameObject>("Player");
         }
 
         private void Update()
@@ -94,12 +109,38 @@ namespace _Project.Scripts.Networking
 
             socket.On("spawnPlayer", player =>
             {
-                Player p = JsonUtility.FromJson<Player>(player.ToString());
                 mainThreadActionQueue.Enqueue(() =>
                 {
-                    GameObject playerGO = new GameObject(p.id);
+                    Player playerData = JsonUtility.FromJson<Player>(player.ToString());
+                    AddPlayer(playerData);
+                    mainMenuManager.SetUIHolderState(false);
                 });
             });
+
+            socket.On("playerDisconnected", playerID =>
+            {
+                mainThreadActionQueue.Enqueue(() =>
+                {
+                    string stringPlayerID = playerID.ToString();
+                    RemovePlayer(stringPlayerID);
+                });
+            });
+        }
+
+        private void AddPlayer(Player p)
+        {
+            GameObject playerGO = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+            playerGO.name = $"{p.userName} : {p.id}";
+            PlayerSetup playerSetup = playerGO.GetComponent<PlayerSetup>();
+            playerSetup.SetupPlayer(p.id.Equals(this.playerID));
+            playersDictionary.Add(p.id, playerGO);
+        }
+
+        private void RemovePlayer(string stringPlayerID)
+        {
+            GameObject playerGO = playersDictionary[stringPlayerID];
+            Destroy(playerGO);
+            playersDictionary.Remove(stringPlayerID);
         }
 
         private void OnDestroy()
