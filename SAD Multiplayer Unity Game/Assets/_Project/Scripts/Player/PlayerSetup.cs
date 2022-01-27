@@ -3,8 +3,8 @@ using UnityEngine;
 namespace _Project.Scripts.Player
 {
     public class PlayerSetup : MonoBehaviour
-    {
-        [SerializeField] private bool isLocalPlayer;
+    { 
+        public bool isLocalPlayer;
         [SerializeField] private Behaviour[] behavioursToToggle;
         [SerializeField] private GameObject[] gameObjectsToToggle;
 

@@ -1,4 +1,5 @@
 using System;
+using _Project.Scripts.Networking;
 using UnityEngine;
 
 namespace _Project.Scripts.Player
@@ -45,11 +46,18 @@ namespace _Project.Scripts.Player
 
         private void Update()
         {
-            HandleInput();
+            if (GetComponent<PlayerSetup>().isLocalPlayer)
+            {
+                HandleInput();
+            }
             GroundCheck();
             Jump();
             ApplyGravity();
             Move();
+            if (GetComponent<PlayerSetup>().isLocalPlayer)
+            {
+                SocketManager.GetInstance().SendPositionUpdate(transform.position);
+            }
             CameraMove();
         }
 
