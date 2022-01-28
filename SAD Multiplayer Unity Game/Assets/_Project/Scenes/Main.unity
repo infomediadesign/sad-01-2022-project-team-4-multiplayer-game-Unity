@@ -1204,6 +1204,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43785ef060f87d24aac6e9a4c78bec28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isLocal: 1
   playerName: 
   playerID: 
   playerPrefab: {fileID: 0}

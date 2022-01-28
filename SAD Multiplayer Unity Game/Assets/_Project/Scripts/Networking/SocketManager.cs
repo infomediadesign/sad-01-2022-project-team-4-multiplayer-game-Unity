@@ -14,6 +14,7 @@ namespace _Project.Scripts.Networking
         private QSocket socket;
         private UnityMainThreadDispatcher _unityMainThreadDispatcher;
 
+        [SerializeField] private bool isLocal = false;
         [SerializeField] private string playerName;
         [SerializeField] private string playerID;
 
@@ -71,7 +72,9 @@ namespace _Project.Scripts.Networking
 
         public void Connect()
         {
-            socket = IO.Socket ("http://127.0.0.1:3000");
+            //socket = IO.Socket ("http://127.0.0.1:3000");
+            socket = IO.Socket (isLocal ?"http://127.0.0.1:7779":"http://3.67.177.79:7779");
+            //socket.Emit("chat", "Hello From the other side");
             SetupSocketEvents();
         }
 
