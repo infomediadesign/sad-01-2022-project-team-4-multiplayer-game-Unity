@@ -82,9 +82,8 @@ namespace _Project.Scripts.Networking
         {
             socket.On (QSocket.EVENT_CONNECT, () => {
                 Debug.Log ("Connected");
+                socket.Emit("setPlayerName", this.playerName);
                 onConnectAction?.Invoke();
-                //socket.Emit("setPlayerName", playerName);
-                //socket.Emit ("chat", "test");
             });
 
             socket.On(QSocket.EVENT_DISCONNECT, reason =>
@@ -106,6 +105,7 @@ namespace _Project.Scripts.Networking
                 _unityMainThreadDispatcher.AddActionToMainThread(() =>
                 {
                     Player playerData = JsonUtility.FromJson<Player>(player.ToString());
+                    Debug.Log("Spawn Player " + playerData.userName);
                     AddPlayer(playerData);
                     uiManager.SetUIHolderState(false);
                 });
@@ -135,10 +135,6 @@ namespace _Project.Scripts.Networking
                 _unityMainThreadDispatcher.AddActionToMainThread(() =>
                 {
                     var playerID = playerData.id;
-                    if (playerID.Equals(this.playerID))
-                    {
-                        return;
-                    }
                     GameObject playerGO = playersDictionary[playerID];
                     playerGO.GetComponent<CharacterController>().enabled = false;
                     playerGO.transform.position = new Vector3(playerData.position.x, playerData.position.y,
@@ -189,7 +185,7 @@ namespace _Project.Scripts.Networking
 
         public void SendPositionUpdate(Vector3 pos)
         {
-            socket.Emit("updatePlayerPosition", playerID, pos.x, pos.y, pos.z);
+            socket.Emit("updatePlayerPosition", pos.x, pos.y, pos.z);
         }
     }
     [Serializable]
