@@ -219,7 +219,7 @@ namespace _Project.Scripts.Networking
             GameObject playerGO = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
             playerGO.name = $"{p.userName} : {p.id}";
             PlayerSetup playerSetup = playerGO.GetComponent<PlayerSetup>();
-            playerSetup.SetupPlayer(p.id.Equals(this.playerID));
+            playerSetup.SetupPlayer(p.id.Equals(this.playerID), p.modelIndex);
             playerIDToPlayerGameObjectDictionary.Add(p.id, playerGO);
         }
 
@@ -265,6 +265,7 @@ namespace _Project.Scripts.Networking
         public string id;
         public string userName;
         public Position position;
+        public int modelIndex;
     }
 
     [Serializable]

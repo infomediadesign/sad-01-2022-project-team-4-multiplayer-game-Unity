@@ -322,3 +322,4 @@ MonoBehaviour:
   - {fileID: 6543941607454272015}
   gameObjectsToToggle:
   - {fileID: 6543941607354283073}
+  defaultModel: {fileID: 6543941607436524300}

@@ -1,3 +1,4 @@
+using _Project.Scripts.Utils;
 using UnityEngine;
 
 namespace _Project.Scripts.Player
@@ -7,9 +8,11 @@ namespace _Project.Scripts.Player
         public bool isLocalPlayer;
         [SerializeField] private Behaviour[] behavioursToToggle;
         [SerializeField] private GameObject[] gameObjectsToToggle;
+        [SerializeField] private GameObject defaultModel;
 
-        public void SetupPlayer(bool isLocalPlayer)
+        public void SetupPlayer(bool isLocalPlayer, int modelIndex)
         {
+            Debug.Log("Setup Player");
             this.isLocalPlayer = isLocalPlayer;
 
             for (int i = 0; i < behavioursToToggle.Length; i++)
@@ -27,6 +30,14 @@ namespace _Project.Scripts.Player
                 GetComponent<Rigidbody>().useGravity = false;
                 GetComponent<CapsuleCollider>().enabled = false;
                 GetComponent<CharacterController>().enabled = false;
+            }
+            
+            //Assign a Cool Character
+            defaultModel.SetActive(false);
+            if (!isLocalPlayer)
+            {
+                GameObject coolModel = ReferenceManager.GetInstance().availableModels[modelIndex];
+                GameObject coolModelClone = Instantiate(coolModel, Vector3.zero, Quaternion.identity, transform);
             }
         }
     }
