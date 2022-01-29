@@ -21,6 +21,13 @@ namespace _Project.Scripts.Player
             {
                 gameObjectsToToggle[i].SetActive(isLocalPlayer);
             }
+
+            if (!this.isLocalPlayer)
+            {
+                GetComponent<Rigidbody>().useGravity = false;
+                GetComponent<CapsuleCollider>().enabled = false;
+                GetComponent<CharacterController>().enabled = false;
+            }
         }
     }
 }

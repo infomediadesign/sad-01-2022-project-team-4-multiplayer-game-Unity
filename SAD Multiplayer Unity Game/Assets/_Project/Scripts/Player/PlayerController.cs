@@ -46,19 +46,17 @@ namespace _Project.Scripts.Player
 
         private void Update()
         {
-            if (GetComponent<PlayerSetup>().isLocalPlayer)
+            if (!GetComponent<PlayerSetup>().isLocalPlayer)
             {
-                HandleInput();
+               return;
             }
+            HandleInput();
             GroundCheck();
             Jump();
             ApplyGravity();
             Move();
-            if (GetComponent<PlayerSetup>().isLocalPlayer)
-            {
-                SocketManager.GetInstance().SendPositionUpdate(transform.position);
-            }
             CameraMove();
+            SocketManager.GetInstance().SendPositionUpdate(transform.position);
         }
 
         private void HandleInput()

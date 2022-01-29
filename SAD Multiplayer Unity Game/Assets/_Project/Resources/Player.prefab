@@ -319,5 +319,6 @@ MonoBehaviour:
   isLocalPlayer: 0
   behavioursToToggle:
   - {fileID: 6543941607454272017}
+  - {fileID: 6543941607454272015}
   gameObjectsToToggle:
   - {fileID: 6543941607354283073}

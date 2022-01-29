@@ -1,10 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using _Project.Scripts.Player;
 using _Project.Scripts.UI;
 using _Project.Scripts.Utils;
 using Socket.Quobject.SocketIoClientDotNet.Client;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace _Project.Scripts.Networking
 {
@@ -18,10 +21,13 @@ namespace _Project.Scripts.Networking
         [SerializeField] private string playerName;
         [SerializeField] private string playerID;
 
-        private Dictionary<string, GameObject> playersDictionary = new Dictionary<string, GameObject>();
+        private Dictionary<string, Player> playerIDToPlayerDictionary = new Dictionary<string, Player>();
+        private Dictionary<string, GameObject> playerIDToPlayerGameObjectDictionary = new Dictionary<string, GameObject>();
 
         [SerializeField] private GameObject playerPrefab;
         [SerializeField] private UIManager uiManager;
+        
+        [SerializeField] private SceneName currentScene;
 
         private Action onConnectAction;
 
@@ -31,6 +37,7 @@ namespace _Project.Scripts.Networking
             {
                 _instance = this;
                 DontDestroyOnLoad(gameObject);
+                SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
             }
             else
             {
@@ -38,11 +45,50 @@ namespace _Project.Scripts.Networking
             }
         }
 
+        private void SceneManagerOnsceneLoaded(Scene arg0, LoadSceneMode arg1)
+        {
+            currentScene = arg0.name.Equals("GameScene") ? SceneName.GameScene : SceneName.MainMenu;
+        }
+
         private void Start()
         {
             uiManager = FindObjectOfType<UIManager>();
             _unityMainThreadDispatcher = UnityMainThreadDispatcher.GetInstance();
             playerPrefab = Resources.Load<GameObject>("Player");
+        }
+
+        private void Update()
+        {
+            if (currentScene == SceneName.MainMenu)
+            {
+                return;
+            }
+
+            lock (playerIDToPlayerDictionary)
+            {
+                lock (playerIDToPlayerGameObjectDictionary)
+                {
+                    var idToPlayerDictionaryKeysList = playerIDToPlayerDictionary.Keys.ToList();
+                    var idToGameObjectDictionaryKeysList = playerIDToPlayerGameObjectDictionary.Keys.ToList();
+                    foreach (var pKey in idToPlayerDictionaryKeysList)
+                    {
+                        if (!playerIDToPlayerGameObjectDictionary.ContainsKey(pKey))
+                        {
+                            //Spawn Player
+                            AddPlayer(playerIDToPlayerDictionary[pKey]);
+                        }
+                    }
+
+                    foreach (var pKey in idToGameObjectDictionaryKeysList)
+                    {
+                        if (!playerIDToPlayerDictionary.ContainsKey(pKey))
+                        {
+                            //Destroy Player
+                            RemovePlayer(pKey);
+                        }
+                    }
+                }
+            }
         }
 
         public static SocketManager GetInstance()
@@ -100,32 +146,43 @@ namespace _Project.Scripts.Networking
                 this.playerID = (string)playerID;
             });
 
-            socket.On("spawnPlayer", player =>
-            {
-                _unityMainThreadDispatcher.AddActionToMainThread(() =>
-                {
-                    Player playerData = JsonUtility.FromJson<Player>(player.ToString());
-                    Debug.Log("Spawn Player " + playerData.userName);
-                    AddPlayer(playerData);
-                    uiManager.SetUIHolderState(false);
-                });
-            });
-
-            socket.On("playerDisconnected", playerID =>
-            {
-                _unityMainThreadDispatcher.AddActionToMainThread(() =>
-                {
-                    string stringPlayerID = playerID.ToString();
-                    RemovePlayer(stringPlayerID);
-                });
-            });
-
             socket.On("roomJoined", (roomID) =>
             {
                 string roomCode = roomID.ToString();
                 _unityMainThreadDispatcher.AddActionToMainThread(() =>
                 {
                     uiManager.SetRoomCode(roomCode);
+                    StartCoroutine(LoadGameScene());
+                });
+            });
+            
+            socket.On("addPlayer", player =>
+            {
+                _unityMainThreadDispatcher.AddActionToMainThread(() =>
+                {
+                    Player playerData = JsonUtility.FromJson<Player>(player.ToString());
+                    lock (playerIDToPlayerDictionary)
+                    {
+                        if (!playerIDToPlayerDictionary.ContainsKey(playerData.id))
+                        {
+                            playerIDToPlayerDictionary.Add(playerData.id, playerData);
+                        }
+                    }
+                });
+            });
+            
+            socket.On("removePlayer", playerID =>
+            {
+                _unityMainThreadDispatcher.AddActionToMainThread(() =>
+                {
+                    string stringPlayerID = playerID.ToString();
+                    lock (playerIDToPlayerDictionary)
+                    {
+                        if (playerIDToPlayerDictionary.ContainsKey(stringPlayerID))
+                        {
+                            playerIDToPlayerDictionary.Remove(stringPlayerID);
+                        }
+                    }
                 });
             });
 
@@ -135,13 +192,26 @@ namespace _Project.Scripts.Networking
                 _unityMainThreadDispatcher.AddActionToMainThread(() =>
                 {
                     var playerID = playerData.id;
-                    GameObject playerGO = playersDictionary[playerID];
-                    playerGO.GetComponent<CharacterController>().enabled = false;
-                    playerGO.transform.position = new Vector3(playerData.position.x, playerData.position.y,
+                    if (playerIDToPlayerGameObjectDictionary.ContainsKey(playerID))
+                    {
+                        GameObject playerGO = playerIDToPlayerGameObjectDictionary[playerID];
+                        playerGO.transform.position = new Vector3(playerData.position.x, playerData.position.y,
                         playerData.position.z);
-                    playerGO.GetComponent<CharacterController>().enabled = true;
+                    }
                 });
             });
+        }
+
+        private IEnumerator LoadGameScene()
+        {
+            AsyncOperation asyncOperation = SceneManager.LoadSceneAsync("GameScene");
+            asyncOperation.allowSceneActivation = false;
+            while (asyncOperation.progress < 0.9f)
+            {
+                yield return null;
+            }
+
+            asyncOperation.allowSceneActivation = true;
         }
 
         private void AddPlayer(Player p)
@@ -150,19 +220,20 @@ namespace _Project.Scripts.Networking
             playerGO.name = $"{p.userName} : {p.id}";
             PlayerSetup playerSetup = playerGO.GetComponent<PlayerSetup>();
             playerSetup.SetupPlayer(p.id.Equals(this.playerID));
-            playersDictionary.Add(p.id, playerGO);
+            playerIDToPlayerGameObjectDictionary.Add(p.id, playerGO);
         }
 
         private void RemovePlayer(string stringPlayerID)
         {
-            GameObject playerGO = playersDictionary[stringPlayerID];
+            GameObject playerGO = playerIDToPlayerGameObjectDictionary[stringPlayerID];
             Destroy(playerGO);
-            playersDictionary.Remove(stringPlayerID);
+            playerIDToPlayerGameObjectDictionary.Remove(stringPlayerID);
         }
 
         private void OnDestroy()
         {
             socket?.Disconnect();
+            SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
         }
 
         public void HostGame()
@@ -202,6 +273,12 @@ namespace _Project.Scripts.Networking
         public float x;
         public float y;
         public float z;
+    }
+
+    public enum SceneName
+    {
+        MainMenu,
+        GameScene
     }
 }
 
