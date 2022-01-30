@@ -20,14 +20,14 @@ namespace _Project.Scripts.Networking
         [SerializeField] private bool isLocal = false;
         [SerializeField] private string playerName;
         [SerializeField] private string playerID;
+        [SerializeField] private string roomCode;
 
         private Dictionary<string, Player> playerIDToPlayerDictionary = new Dictionary<string, Player>();
         private Dictionary<string, GameObject> playerIDToPlayerGameObjectDictionary = new Dictionary<string, GameObject>();
 
-        [SerializeField] private GameObject playerPrefab;
-        [SerializeField] private UIManager uiManager;
-        
         [SerializeField] private SceneName currentScene;
+        
+        [SerializeField] private AlwaysOnUIManager alwaysOnUIManager;
 
         private Action onConnectAction;
 
@@ -52,9 +52,7 @@ namespace _Project.Scripts.Networking
 
         private void Start()
         {
-            uiManager = FindObjectOfType<UIManager>();
             _unityMainThreadDispatcher = UnityMainThreadDispatcher.GetInstance();
-            playerPrefab = Resources.Load<GameObject>("Player");
         }
 
         private void Update()
@@ -149,10 +147,19 @@ namespace _Project.Scripts.Networking
             socket.On("roomJoined", (roomID) =>
             {
                 string roomCode = roomID.ToString();
+                this.roomCode = roomCode;
                 _unityMainThreadDispatcher.AddActionToMainThread(() =>
                 {
-                    uiManager.SetRoomCode(roomCode);
+                    alwaysOnUIManager.SetGameCodeToUI(this.roomCode);
                     StartCoroutine(LoadGameScene());
+                });
+            });
+
+            socket.On("unableToJoinRoom", roomFailedToJoinMessage =>
+            {
+                _unityMainThreadDispatcher.AddActionToMainThread(() =>
+                {
+                    AlwaysOnUIManager.onGameErrorMessage?.Invoke(roomFailedToJoinMessage.ToString());
                 });
             });
             
@@ -216,7 +223,8 @@ namespace _Project.Scripts.Networking
 
         private void AddPlayer(Player p)
         {
-            GameObject playerGO = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity);
+            GameObject playerGO = Instantiate(ReferenceManager.GetInstance().playerPrefab, 
+                Vector3.zero, Quaternion.identity);
             playerGO.name = $"{p.userName} : {p.id}";
             PlayerSetup playerSetup = playerGO.GetComponent<PlayerSetup>();
             playerSetup.SetupPlayer(p.id.Equals(this.playerID), p.modelIndex);

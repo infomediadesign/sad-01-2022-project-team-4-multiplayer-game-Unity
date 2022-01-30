@@ -7,6 +7,7 @@ namespace _Project.Scripts.Utils
     {
         private static ReferenceManager Instance = null;
         public GameObject[] availableModels;
+        public GameObject playerPrefab;
 
         public static ReferenceManager GetInstance()
         {

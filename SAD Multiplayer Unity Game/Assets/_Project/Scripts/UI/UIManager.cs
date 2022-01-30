@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using _Project.Scripts.Networking;
 using TMPro;
 using UnityEngine;
@@ -8,13 +10,6 @@ namespace _Project.Scripts.UI
     {
         [SerializeField] private TMP_InputField playerNameInputField;
         [SerializeField] private TMP_InputField roomNameInputField;
-        [SerializeField] private TextMeshProUGUI roomCodeLabel;
-        [SerializeField] private GameObject uiHolder;
-
-        public void OnConnectClick()
-        {
-            SocketManager.GetInstance().Connect();
-        }
 
         public void HostGameClick()
         {
@@ -31,7 +26,7 @@ namespace _Project.Scripts.UI
                 string roomName = roomNameInputField.text;
                 if(string.IsNullOrEmpty(roomName))
                 {
-                    Debug.LogError("Please Enter a player name!");
+                    AlwaysOnUIManager.onGameErrorMessage?.Invoke("Please Enter a room name!");
                     return;
                 }
 
@@ -47,7 +42,7 @@ namespace _Project.Scripts.UI
             string playerName = playerNameInputField.text;
             if(string.IsNullOrEmpty(playerName))
             {
-                Debug.LogError("Please Enter a player name!");
+                AlwaysOnUIManager.onGameErrorMessage?.Invoke("Please Enter a player name!");
                 return false;
             }
 
@@ -56,16 +51,6 @@ namespace _Project.Scripts.UI
         
             SocketManager.GetInstance().SetPlayerName(playerName);
             return true;
-        }
-
-        public void SetUIHolderState(bool state)
-        {
-            uiHolder.SetActive(state);
-        }
-
-        public void SetRoomCode(string roomCode)
-        {
-            roomCodeLabel.SetText(roomCode);
         }
     }
 }
