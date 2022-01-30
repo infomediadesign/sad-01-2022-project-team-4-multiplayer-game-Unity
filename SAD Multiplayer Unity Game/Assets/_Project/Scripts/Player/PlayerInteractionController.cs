@@ -56,14 +56,20 @@ public class PlayerInteractionController : MonoBehaviour
                 {
                     currentHighlightedInteractable.GetComponent<Renderer>().material =
                     lastMat;
-                    
                 }
                 currentHighlightedInteractable = interactables[i];
                 lastMat = currentHighlightedInteractable.GetComponent<Renderer>().material;
                 currentHighlightedInteractable.GetComponent<Renderer>().material =
                     highlightedMaterial;
-                break;
+                return;
             }
+        }
+        
+        if(currentHighlightedInteractable != null && lastMat != null)
+        {
+            currentHighlightedInteractable.GetComponent<Renderer>().material =
+                lastMat;
+            currentHighlightedInteractable = null;
         }
     }
 
