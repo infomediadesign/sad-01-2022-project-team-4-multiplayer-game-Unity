@@ -25,14 +25,14 @@ namespace _Project.Scripts.Interactions
             {
                 clonedTask.gameObject.SetActive(true);
             }
-            SocketManager.GetInstance().GetLocalPlayerController().SetLockInput(true);
+            AlwaysOnUIManager.onUpdatePlayerInput?.Invoke(true, GameUI.TaskPanel);
         }
 
         private void InteractEnd()
         {
             clonedTask.gameObject.SetActive(false);
             // unlock Input
-            SocketManager.GetInstance().GetLocalPlayerController().SetLockInput(false);
+            AlwaysOnUIManager.onUpdatePlayerInput?.Invoke(false, GameUI.TaskPanel);
         }
 
         private void OnTaskSuccess()

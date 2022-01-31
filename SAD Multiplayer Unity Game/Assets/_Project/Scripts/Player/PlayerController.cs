@@ -57,6 +57,12 @@ namespace _Project.Scripts.Player
                 inputMouseLookVector.x = 0;
                 inputMouseLookVector.y = 0;
             }
+
+            else
+            {
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+            }
         }
 
         public bool GetLockInputState()
@@ -105,9 +111,6 @@ namespace _Project.Scripts.Player
             {
                 _jump = true;
             }
-
-            Cursor.visible = lockCursor;
-            Cursor.lockState = currentCursorLockMode;
         }
 
         private void GroundCheck()

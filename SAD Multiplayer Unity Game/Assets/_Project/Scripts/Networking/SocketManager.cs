@@ -296,6 +296,12 @@ namespace _Project.Scripts.Networking
         {
             socket.Emit("chatMessage", myChatMessage);
         }
+
+        public void Disconnect()
+        {
+            socket?.Disconnect();
+            SceneManager.LoadScene("Main");
+        }
     }
     [Serializable]
     public class Player

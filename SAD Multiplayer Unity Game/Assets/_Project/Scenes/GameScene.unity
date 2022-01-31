@@ -258,6 +258,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   taskPrefab: {fileID: 0}
+  clonedTask: {fileID: 0}
   taskDone: 0
 --- !u!114 &250647499
 MonoBehaviour:
@@ -272,6 +273,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   taskPrefab: {fileID: 0}
+  clonedTask: {fileID: 0}
   taskDone: 0
 --- !u!114 &250647500
 MonoBehaviour:
@@ -286,6 +288,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   taskPrefab: {fileID: 0}
+  clonedTask: {fileID: 0}
   taskDone: 0
 --- !u!114 &250647501
 MonoBehaviour:
@@ -300,6 +303,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   taskPrefab: {fileID: 0}
+  clonedTask: {fileID: 0}
   taskDone: 0
 --- !u!114 &250647502
 MonoBehaviour:
@@ -314,6 +318,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   taskPrefab: {fileID: 0}
+  clonedTask: {fileID: 0}
   taskDone: 0
 --- !u!114 &250647503
 MonoBehaviour:
@@ -327,7 +332,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0175f72e5b1d84995cd5d5806ea827, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  taskPrefab: {fileID: 6133113682637468597, guid: 39eb9c014a39206449bda1eaa9848a39, type: 3}
+  taskPrefab: {fileID: 7219511696545265302, guid: 9c73fe547056685489ef46ac307c41b4, type: 3}
+  clonedTask: {fileID: 0}
   taskDone: 0
 --- !u!114 &250647504
 MonoBehaviour:
@@ -341,7 +347,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0175f72e5b1d84995cd5d5806ea827, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  taskPrefab: {fileID: 6133113682637468597, guid: 39eb9c014a39206449bda1eaa9848a39, type: 3}
+  taskPrefab: {fileID: 7219511696545265302, guid: 9c73fe547056685489ef46ac307c41b4, type: 3}
+  clonedTask: {fileID: 0}
   taskDone: 0
 --- !u!114 &250647505
 MonoBehaviour:
@@ -356,6 +363,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   taskPrefab: {fileID: 6133113682637468597, guid: 39eb9c014a39206449bda1eaa9848a39, type: 3}
+  clonedTask: {fileID: 0}
   taskDone: 0
 --- !u!114 &250647506
 MonoBehaviour:
@@ -370,6 +378,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   taskPrefab: {fileID: 6133113682637468597, guid: 39eb9c014a39206449bda1eaa9848a39, type: 3}
+  clonedTask: {fileID: 0}
   taskDone: 0
 --- !u!1 &941640215
 GameObject:

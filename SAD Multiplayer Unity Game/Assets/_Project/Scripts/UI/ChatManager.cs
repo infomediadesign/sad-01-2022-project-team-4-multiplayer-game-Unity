@@ -53,7 +53,16 @@ namespace _Project.Scripts.UI
         public void ToggleChatUI()
         {
             _chatUIHolder.SetActive(!_chatUIHolder.activeSelf);
-            SocketManager.GetInstance().GetLocalPlayerController().SetLockInput(_chatUIHolder.activeSelf);
+            AlwaysOnUIManager.onUpdatePlayerInput?.Invoke(_chatUIHolder.activeSelf, GameUI.ChatPanel);
+        }
+
+        public void ClearMessages()
+        {
+            int messagesCount = chatMessageContent.childCount;
+            for (int i = 0; i < messagesCount; i++)
+            {
+                Destroy(chatMessageContent.GetChild(0).gameObject);
+            }
         }
     }
 }

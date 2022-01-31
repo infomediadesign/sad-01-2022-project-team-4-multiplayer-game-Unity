@@ -13,22 +13,33 @@ public class AlwaysOnUIManager : MonoBehaviour
     
     [SerializeField] private TextMeshProUGUI gameCodeTextMeshProUGUI;
     public static Action<string> onGameErrorMessage;
+    public static Action<bool, GameUI> onUpdatePlayerInput;
+
+    private HashSet<GameUI> gameUIsEnabled = new HashSet<GameUI>();
 
     [SerializeField] private ChatManager _chatManager;
+    [SerializeField] private GameObject leaveRoomButtonGO;
+
+    private void Awake()
+    {
+        leaveRoomButtonGO.SetActive(false);
+    }
 
     private void OnEnable()
     {
         onGameErrorMessage += DisplayErrorMessage;
+        onUpdatePlayerInput += ONUpdatePlayerInput;
     }
 
     private void OnDisable()
     {
         onGameErrorMessage -= DisplayErrorMessage;
+        onUpdatePlayerInput -= ONUpdatePlayerInput;
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && SocketManager.GetInstance().currentScene == SceneName.GameScene)
+        if (Input.GetKeyDown(KeyCode.Tab) && SocketManager.GetInstance().currentScene == SceneName.GameScene)
         {
             _chatManager.ToggleChatUI();
         }
@@ -38,6 +49,25 @@ public class AlwaysOnUIManager : MonoBehaviour
     {
         gameCodeTextMeshProUGUI.SetText("Game Code : " + gameCode);
         gameCodeTextMeshProUGUI.gameObject.SetActive(true);
+        
+        leaveRoomButtonGO.SetActive(true);
+    }
+    
+    private void ONUpdatePlayerInput(bool arg1, GameUI arg2)
+    {
+        if (arg1)
+        {
+            gameUIsEnabled.Add(arg2);
+            SocketManager.GetInstance().GetLocalPlayerController().SetLockInput(true);
+        }
+        else
+        {
+            gameUIsEnabled.Remove(arg2);
+            if (gameUIsEnabled.Count == 0)
+            {
+                SocketManager.GetInstance().GetLocalPlayerController().SetLockInput(false);
+            }
+        }
     }
     
     private void DisplayErrorMessage(string errorMessage)
@@ -55,4 +85,17 @@ public class AlwaysOnUIManager : MonoBehaviour
         errorMessagePanel.SetActive(false);
         errorMessagePanelTextMeshProUGUI.SetText("");
     }
+
+    public void OnLeaveRoomClick()
+    {
+        SocketManager.GetInstance().Disconnect();
+        _chatManager.ClearMessages();
+    }
+
+}
+
+public enum GameUI
+{
+    ChatPanel,
+    TaskPanel
 }
