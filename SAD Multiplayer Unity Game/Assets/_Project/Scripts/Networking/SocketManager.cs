@@ -21,11 +21,12 @@ namespace _Project.Scripts.Networking
         [SerializeField] private string playerName;
         [SerializeField] private string playerID;
         [SerializeField] private string roomCode;
+        [SerializeField] private PlayerController myPlayerController;
 
         private Dictionary<string, Player> playerIDToPlayerDictionary = new Dictionary<string, Player>();
         private Dictionary<string, GameObject> playerIDToPlayerGameObjectDictionary = new Dictionary<string, GameObject>();
 
-        [SerializeField] private SceneName currentScene;
+        public SceneName currentScene;
         
         [SerializeField] private AlwaysOnUIManager alwaysOnUIManager;
 
@@ -207,6 +208,20 @@ namespace _Project.Scripts.Networking
                     }
                 });
             });
+
+            socket.On("newChatMessageFromServer", chatMessage =>
+            {
+                _unityMainThreadDispatcher.AddActionToMainThread(() =>
+                {
+                    ChatMessage chatMessageObj = JsonUtility.FromJson<ChatMessage>(chatMessage.ToString());
+                    if (chatMessageObj != null && playerIDToPlayerDictionary.ContainsKey(chatMessageObj.playerID))
+                    {
+                        string messagePlayerName = playerIDToPlayerDictionary[chatMessageObj.playerID].userName;
+                        ChatManager.onNewChatMessageReceived?.Invoke(messagePlayerName, chatMessageObj.message, 
+                            chatMessageObj.playerID == playerID);
+                    }
+                });
+            });
         }
 
         private IEnumerator LoadGameScene()
@@ -225,9 +240,14 @@ namespace _Project.Scripts.Networking
         {
             GameObject playerGO = Instantiate(ReferenceManager.GetInstance().playerPrefab, 
                 Vector3.zero, Quaternion.identity);
+            bool isLocalPlayer = p.id.Equals(playerID);
             playerGO.name = $"{p.userName} : {p.id}";
             PlayerSetup playerSetup = playerGO.GetComponent<PlayerSetup>();
-            playerSetup.SetupPlayer(p.id.Equals(this.playerID), p.modelIndex);
+            playerSetup.SetupPlayer(isLocalPlayer, p.modelIndex);
+            if (isLocalPlayer)
+            {
+                myPlayerController = playerGO.GetComponent<PlayerController>();
+            }
             playerIDToPlayerGameObjectDictionary.Add(p.id, playerGO);
         }
 
@@ -266,6 +286,16 @@ namespace _Project.Scripts.Networking
         {
             socket.Emit("updatePlayerPosition", pos.x, pos.y, pos.z);
         }
+
+        public PlayerController GetLocalPlayerController()
+        {
+            return myPlayerController;
+        }
+
+        public void SendChatMessage(string myChatMessage)
+        {
+            socket.Emit("chatMessage", myChatMessage);
+        }
     }
     [Serializable]
     public class Player
@@ -282,6 +312,13 @@ namespace _Project.Scripts.Networking
         public float x;
         public float y;
         public float z;
+    }
+
+    [Serializable]
+    public class ChatMessage
+    {
+        public string playerID;
+        public string message;
     }
 
     public enum SceneName

@@ -39,9 +39,37 @@ namespace _Project.Scripts.Player
         [SerializeField] private CharacterController characterController;
         [SerializeField] private Transform cameraTransform;
 
+        [SerializeField] private bool lockPlayerInput = false;
+
+        public void SetLockInput(bool state)
+        {
+            lockPlayerInput = state;
+            if (lockPlayerInput)
+            {
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
+                
+                //Zero Out Movement 
+                _inputVector.x = 0;
+                _inputVector.z = 0;
+
+                //Zero out look rotations
+                inputMouseLookVector.x = 0;
+                inputMouseLookVector.y = 0;
+            }
+        }
+
+        public bool GetLockInputState()
+        {
+            return lockPlayerInput;
+        }
+
         private void Awake()
         {
             characterController = GetComponent<CharacterController>();
+            
+            Cursor.visible = lockCursor;
+            Cursor.lockState = currentCursorLockMode;
         }
 
         private void Update()
@@ -50,7 +78,11 @@ namespace _Project.Scripts.Player
             {
                return;
             }
-            HandleInput();
+
+            if (!lockPlayerInput)
+            {
+                HandleInput();
+            }
             GroundCheck();
             Jump();
             ApplyGravity();
@@ -73,6 +105,9 @@ namespace _Project.Scripts.Player
             {
                 _jump = true;
             }
+
+            Cursor.visible = lockCursor;
+            Cursor.lockState = currentCursorLockMode;
         }
 
         private void GroundCheck()
@@ -114,9 +149,6 @@ namespace _Project.Scripts.Player
 
         private void CameraMove()
         {
-            Cursor.visible = lockCursor;
-            Cursor.lockState = currentCursorLockMode;
-
             mouseLookVector = new Vector2(inputMouseLookVector.x * mouseXSensitivity,
                 inputMouseLookVector.y * mouseYSensitivity);
 
