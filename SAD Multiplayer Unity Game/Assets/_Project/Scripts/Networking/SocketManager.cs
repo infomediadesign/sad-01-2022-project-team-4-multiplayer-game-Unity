@@ -264,11 +264,11 @@ namespace _Project.Scripts.Networking
             SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
         }
 
-        public void HostGame()
+        public void HostGame(int maxPlayerCount)
         {
             onConnectAction = () =>
             {
-                socket.Emit("hostRoom", playerName);
+                socket.Emit("hostRoom", maxPlayerCount);
             };
             Connect();
         }
@@ -277,7 +277,7 @@ namespace _Project.Scripts.Networking
         {
             onConnectAction = () =>
             {
-                socket.Emit("joinRoom", roomName, playerName);
+                socket.Emit("joinRoom", roomName);
             };
             Connect();
         }

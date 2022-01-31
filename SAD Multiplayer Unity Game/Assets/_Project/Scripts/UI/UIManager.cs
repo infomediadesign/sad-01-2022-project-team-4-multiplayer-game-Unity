@@ -10,12 +10,22 @@ namespace _Project.Scripts.UI
     {
         [SerializeField] private TMP_InputField playerNameInputField;
         [SerializeField] private TMP_InputField roomNameInputField;
+        [SerializeField] private TMP_InputField maxPlayerInputField;
 
         public void HostGameClick()
         {
             if (IsValidName())
-            {
-                SocketManager.GetInstance().HostGame();
+            { 
+                string maxPlayerCountString = maxPlayerInputField.text;
+                maxPlayerCountString = string.IsNullOrEmpty(maxPlayerCountString) ? "" : maxPlayerCountString.Trim();
+                int maxPlayerCount = 0;
+                if(string.IsNullOrEmpty(maxPlayerCountString) || !int.TryParse(maxPlayerCountString, out maxPlayerCount))
+                {
+                    AlwaysOnUIManager.onGameErrorMessage?.Invoke("Please Enter max allowed players!");
+                    return;
+                }
+
+                SocketManager.GetInstance().HostGame(maxPlayerCount);
             }
         }
 
