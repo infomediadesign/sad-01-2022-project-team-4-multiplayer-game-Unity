@@ -11,7 +11,7 @@ namespace _Project.Scripts.Interactions
         
         public void Interact()
         {
-            if (taskDone)
+            if (taskDone || !SocketManager.isGameStarted)
             {
                 return;
             }
@@ -38,6 +38,7 @@ namespace _Project.Scripts.Interactions
         private void OnTaskSuccess()
         {
             taskDone = true;
+            SocketManager.GetInstance().SendTaskFinished();
         }
     }
 }

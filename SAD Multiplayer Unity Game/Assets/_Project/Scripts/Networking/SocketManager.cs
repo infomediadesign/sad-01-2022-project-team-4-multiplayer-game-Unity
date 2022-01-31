@@ -31,6 +31,7 @@ namespace _Project.Scripts.Networking
         [SerializeField] private AlwaysOnUIManager alwaysOnUIManager;
 
         private Action onConnectAction;
+        public static bool isGameStarted = false;
 
         private void Awake()
         {
@@ -224,6 +225,23 @@ namespace _Project.Scripts.Networking
                     }
                 });
             });
+            
+            socket.On("gameStarting", () =>
+            {
+                Debug.Log("Game Starting!");
+            });
+            
+            socket.On("gameStarted", () =>
+            {
+                Debug.Log("Game Started!");
+                isGameStarted = true;
+            });
+            
+            socket.On("gameOver", winnerPlayerID =>
+            {
+                Debug.Log("Game Over and Winner is " + 
+                          playerIDToPlayerDictionary[winnerPlayerID.ToString()].userName);
+            });
         }
 
         private IEnumerator LoadGameScene()
@@ -309,8 +327,14 @@ namespace _Project.Scripts.Networking
 
         public void Disconnect()
         {
+            isGameStarted = false;
             socket?.Disconnect();
             SceneManager.LoadScene("Main");
+        }
+
+        public void SendTaskFinished()
+        {
+            socket.Emit("taskFinished");
         }
     }
     [Serializable]
