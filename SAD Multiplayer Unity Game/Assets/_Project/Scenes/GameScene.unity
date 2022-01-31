@@ -332,7 +332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0175f72e5b1d84995cd5d5806ea827, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  taskPrefab: {fileID: 7219511696545265302, guid: 9c73fe547056685489ef46ac307c41b4, type: 3}
+  taskPrefab: {fileID: 1473765402839228185, guid: aabadbd04830a164184ae9f238b336a7, type: 3}
   clonedTask: {fileID: 0}
   taskDone: 0
 --- !u!114 &250647504
