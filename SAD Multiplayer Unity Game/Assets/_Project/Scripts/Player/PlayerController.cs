@@ -95,6 +95,7 @@ namespace _Project.Scripts.Player
             Move();
             CameraMove();
             SocketManager.GetInstance().SendPositionUpdate(transform.position);
+            SocketManager.GetInstance().SendRotationUpdate(new Vector3(0,cameraTransform.localEulerAngles.y, 0));
         }
 
         private void HandleInput()

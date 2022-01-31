@@ -55,6 +55,11 @@ namespace _Project.Scripts.UI
             _chatUIHolder.SetActive(!_chatUIHolder.activeSelf);
             AlwaysOnUIManager.onUpdatePlayerInput?.Invoke(_chatUIHolder.activeSelf, GameUI.ChatPanel);
         }
+        
+        public void HideChatUI()
+        {
+            _chatUIHolder.SetActive(false);
+        }
 
         public void ClearMessages()
         {

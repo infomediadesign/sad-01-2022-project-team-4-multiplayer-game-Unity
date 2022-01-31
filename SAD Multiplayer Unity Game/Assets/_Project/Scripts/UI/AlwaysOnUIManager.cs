@@ -90,6 +90,7 @@ public class AlwaysOnUIManager : MonoBehaviour
     {
         SocketManager.GetInstance().Disconnect();
         _chatManager.ClearMessages();
+        _chatManager.HideChatUI();
     }
 
 }

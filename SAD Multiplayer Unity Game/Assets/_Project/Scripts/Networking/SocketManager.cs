@@ -205,6 +205,8 @@ namespace _Project.Scripts.Networking
                         GameObject playerGO = playerIDToPlayerGameObjectDictionary[playerID];
                         playerGO.transform.position = new Vector3(playerData.position.x, playerData.position.y,
                         playerData.position.z);
+                        playerGO.transform.eulerAngles = new Vector3(playerData.rotation.x, playerData.rotation.y,
+                            playerData.rotation.z);
                     }
                 });
             });
@@ -286,6 +288,11 @@ namespace _Project.Scripts.Networking
         {
             socket.Emit("updatePlayerPosition", pos.x, pos.y, pos.z);
         }
+        
+        public void SendRotationUpdate(Vector3 pos)
+        {
+            socket.Emit("updatePlayerRotation", pos.x, pos.y, pos.z);
+        }
 
         public PlayerController GetLocalPlayerController()
         {
@@ -309,6 +316,7 @@ namespace _Project.Scripts.Networking
         public string id;
         public string userName;
         public Position position;
+        public Position rotation;
         public int modelIndex;
     }
 
