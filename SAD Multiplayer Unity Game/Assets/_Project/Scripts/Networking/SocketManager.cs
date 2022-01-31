@@ -20,7 +20,7 @@ namespace _Project.Scripts.Networking
         [SerializeField] private bool isLocal = false;
         [SerializeField] private string playerName;
         [SerializeField] private string playerID;
-        [SerializeField] private string roomCode;
+        [SerializeField] private RoomConfig roomConfig;
         [SerializeField] private PlayerController myPlayerController;
 
         private Dictionary<string, Player> playerIDToPlayerDictionary = new Dictionary<string, Player>();
@@ -145,13 +145,13 @@ namespace _Project.Scripts.Networking
                 this.playerID = (string)playerID;
             });
 
-            socket.On("roomJoined", (roomID) =>
+            socket.On("roomJoined", (roomConfigObj) =>
             {
-                string roomCode = roomID.ToString();
-                this.roomCode = roomCode;
                 _unityMainThreadDispatcher.AddActionToMainThread(() =>
                 {
-                    alwaysOnUIManager.SetGameCodeToUI(this.roomCode);
+                    roomConfig = JsonUtility.FromJson<RoomConfig>(roomConfigObj.ToString());
+                    alwaysOnUIManager.SetRoomUI(roomConfig.roomName, roomConfig.playersInRoom,
+                        roomConfig.maxAllowedPlayers);
                     StartCoroutine(LoadGameScene());
                 });
             });
@@ -251,6 +251,9 @@ namespace _Project.Scripts.Networking
                 myPlayerController = playerGO.GetComponent<PlayerController>();
             }
             playerIDToPlayerGameObjectDictionary.Add(p.id, playerGO);
+            
+            alwaysOnUIManager.SetRoomUI(roomConfig.roomName, playerIDToPlayerGameObjectDictionary.Count,
+                roomConfig.maxAllowedPlayers);
         }
 
         private void RemovePlayer(string stringPlayerID)
@@ -333,6 +336,14 @@ namespace _Project.Scripts.Networking
     {
         public string playerID;
         public string message;
+    }
+
+    [Serializable]
+    public class RoomConfig
+    {
+        public string roomName;
+        public int playersInRoom;
+        public int maxAllowedPlayers;
     }
 
     public enum SceneName
