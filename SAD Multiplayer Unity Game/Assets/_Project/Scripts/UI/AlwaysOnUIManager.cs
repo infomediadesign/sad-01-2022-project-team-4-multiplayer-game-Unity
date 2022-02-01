@@ -20,6 +20,10 @@ public class AlwaysOnUIManager : MonoBehaviour
 
     [SerializeField] private ChatManager _chatManager;
     [SerializeField] private GameObject leaveRoomButtonGO;
+    [SerializeField] private GameObject gameStartedPanel;
+    [SerializeField] private TextMeshProUGUI gameStartedTextMeshProUGUI;
+    [SerializeField] private GameObject winnerPanel;
+    [SerializeField] private TextMeshProUGUI winnerNameTextMeshProUGUI;
 
     private void Awake()
     {
@@ -93,14 +97,60 @@ public class AlwaysOnUIManager : MonoBehaviour
     public void OnLeaveRoomClick()
     {
         SocketManager.GetInstance().Disconnect();
-        _chatManager.ClearMessages();
-        _chatManager.HideChatUI();
+        MainMenuLoaded();
     }
 
+    public void SetGameStartingPanelState(bool state)
+    {
+        StopCoroutine(GameStartingSequenceRoutine());
+        if (state)
+        {
+            gameStartedPanel.SetActive(true);
+            StartCoroutine(GameStartingSequenceRoutine());
+        }
+        else
+        {
+            gameStartedPanel.SetActive(false);
+        }
+    }
+
+    private IEnumerator GameStartingSequenceRoutine()
+    {
+        for (int i = 10; i > 0; i--)
+        {
+            gameStartedTextMeshProUGUI.SetText($"Game Starting in \n {i}");
+            yield return new WaitForSecondsRealtime(1f);
+        }
+        gameStartedPanel.SetActive(false);
+    }
+
+    public void SetWinnerPanelState(string winnerName)
+    {
+        winnerNameTextMeshProUGUI.SetText($"Winner is \n {winnerName}");
+        winnerPanel.SetActive(true);
+        ONUpdatePlayerInput(true, GameUI.WinnerPanel);
+    }
+
+    public void OnCloseWinnerPanelClick()
+    {
+        winnerPanel.SetActive(false);
+        ONUpdatePlayerInput(false, GameUI.WinnerPanel);
+    }
+
+    public void MainMenuLoaded()
+    {
+        _chatManager.ClearMessages();
+        _chatManager.HideChatUI();
+        winnerPanel.SetActive(false);
+        gameStartedPanel.SetActive(false);
+        StopCoroutine(GameStartingSequenceRoutine());
+        gameUIsEnabled.Clear();
+    }
 }
 
 public enum GameUI
 {
     ChatPanel,
-    TaskPanel
+    TaskPanel,
+    WinnerPanel
 }

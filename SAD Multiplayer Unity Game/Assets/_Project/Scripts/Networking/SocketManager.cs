@@ -50,6 +50,10 @@ namespace _Project.Scripts.Networking
         private void SceneManagerOnsceneLoaded(Scene arg0, LoadSceneMode arg1)
         {
             currentScene = arg0.name.Equals("GameScene") ? SceneName.GameScene : SceneName.MainMenu;
+            if (currentScene == SceneName.MainMenu)
+            {
+                alwaysOnUIManager.MainMenuLoaded();
+            }
         }
 
         private void Start()
@@ -229,6 +233,10 @@ namespace _Project.Scripts.Networking
             socket.On("gameStarting", () =>
             {
                 Debug.Log("Game Starting!");
+                _unityMainThreadDispatcher.AddActionToMainThread(() =>
+                {
+                    alwaysOnUIManager.SetGameStartingPanelState(true);
+                });
             });
             
             socket.On("gameStarted", () =>
@@ -239,8 +247,23 @@ namespace _Project.Scripts.Networking
             
             socket.On("gameOver", winnerPlayerID =>
             {
-                Debug.Log("Game Over and Winner is " + 
-                          playerIDToPlayerDictionary[winnerPlayerID.ToString()].userName);
+                _unityMainThreadDispatcher.AddActionToMainThread(() =>
+                {
+                    isGameStarted = false;
+                    lock (playerIDToPlayerDictionary)
+                    {
+                        if (playerIDToPlayerDictionary.TryGetValue(winnerPlayerID.ToString(), out Player winnerPlayer))
+                        {
+                            string winnerName = winnerPlayer.userName;
+                            if (!string.IsNullOrEmpty(winnerName))
+                            {
+                                Debug.Log("Game Over and Winner is " + winnerName);
+                                alwaysOnUIManager.SetWinnerPanelState(winnerName);
+                            }
+                        }
+                    }
+                });
+
             });
         }
 
