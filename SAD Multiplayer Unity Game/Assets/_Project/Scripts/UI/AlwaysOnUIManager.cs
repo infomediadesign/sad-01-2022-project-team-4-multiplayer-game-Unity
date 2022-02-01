@@ -12,7 +12,9 @@ public class AlwaysOnUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI errorMessagePanelTextMeshProUGUI;
     
     [SerializeField] private TextMeshProUGUI gameCodeTextMeshProUGUI;
+    [SerializeField] private GameObject gameCodeHolder;
     [SerializeField] private TextMeshProUGUI roomPlayersCountTextMeshProUGUI;
+    [SerializeField] private GameObject roomPlayerCountHolder;
     public static Action<string> onGameErrorMessage;
     public static Action<bool, GameUI> onUpdatePlayerInput;
 
@@ -53,10 +55,10 @@ public class AlwaysOnUIManager : MonoBehaviour
     public void SetRoomUI(string gameCode, int currentPlayers, int maxPlayers)
     {
         gameCodeTextMeshProUGUI.SetText("Game Code : " + gameCode);
-        gameCodeTextMeshProUGUI.gameObject.SetActive(true);
+        gameCodeHolder.SetActive(true);
         
         roomPlayersCountTextMeshProUGUI.SetText($"Players: {currentPlayers}/{maxPlayers}");
-        roomPlayersCountTextMeshProUGUI.gameObject.SetActive(true);
+        roomPlayerCountHolder.SetActive(true);
             
         leaveRoomButtonGO.SetActive(true);
     }
@@ -143,7 +145,10 @@ public class AlwaysOnUIManager : MonoBehaviour
         _chatManager.HideChatUI();
         winnerPanel.SetActive(false);
         gameStartedPanel.SetActive(false);
-        StopCoroutine(GameStartingSequenceRoutine());
+        StopAllCoroutines();
+        gameCodeHolder.SetActive(false);
+        roomPlayerCountHolder.SetActive(false);
+        errorMessagePanel.SetActive(false);
         gameUIsEnabled.Clear();
     }
 }

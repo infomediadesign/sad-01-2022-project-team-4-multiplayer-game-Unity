@@ -1,15 +1,19 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace _Project.Scripts.UI
 {
     public class TextChatItem : MonoBehaviour
     {
         [SerializeField] private TextMeshProUGUI messageTextMeshProUGUI;
-        public void Setup(string playerName, string message, Color messageColor)
+        [SerializeField] private Image messageBG;
+        public void Setup(string playerName, string message, Sprite messageSprite)
         {
             messageTextMeshProUGUI.SetText($"{playerName} : {message}");
-            messageTextMeshProUGUI.color = messageColor;
+            messageBG.sprite = messageSprite;
+            messageBG.type = Image.Type.Sliced;
+            messageBG.pixelsPerUnitMultiplier = 5;
         }
     }
 }

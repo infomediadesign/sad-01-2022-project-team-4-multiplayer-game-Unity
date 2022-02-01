@@ -14,6 +14,8 @@ namespace _Project.Scripts.UI
         [SerializeField] private TMP_InputField _chatMessageInputField;
         [SerializeField] private GameObject _chatUIHolder;
 
+        [SerializeField] private Sprite myMessageSprite, otherMessageSprite;
+
         private void OnEnable()
         {
             onNewChatMessageReceived += ONNewChatMessageReceived;
@@ -27,7 +29,7 @@ namespace _Project.Scripts.UI
         private void ONNewChatMessageReceived(string playerName, string message, bool isLocalPlayer)
         {
             TextChatItem _textChatItem = Instantiate(_textChatItemPrefab, chatMessageContent);
-            _textChatItem.Setup(playerName, message, isLocalPlayer ? Color.green : Color.black);
+            _textChatItem.Setup(playerName, message, isLocalPlayer ? myMessageSprite : otherMessageSprite);
         }
 
         public void OnSendButtonClick()
