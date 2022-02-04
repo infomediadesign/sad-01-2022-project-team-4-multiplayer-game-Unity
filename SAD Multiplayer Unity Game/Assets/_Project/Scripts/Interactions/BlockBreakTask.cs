@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace _Project.Scripts.Interactions
@@ -9,12 +10,7 @@ namespace _Project.Scripts.Interactions
             // Task Complete.
             TaskCompleted();
             //Close Task
-            TaskClosed();
-        }
-        
-        public void CloseTask()
-        {
-            TaskClosed();
+            CloseTask();
         }
     }
 }

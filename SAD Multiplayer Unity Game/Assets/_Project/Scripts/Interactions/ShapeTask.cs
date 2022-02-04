@@ -18,12 +18,7 @@ public class ShapeTask : GameTask
             // Task Complete.
             TaskCompleted();
             //Close Task
-            TaskClosed();
+            CloseTask();
         }
-    }
-
-    public void CloseTask()
-    {
-        TaskClosed();
     }
 }

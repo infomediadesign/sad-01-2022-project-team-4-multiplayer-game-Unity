@@ -7,6 +7,15 @@ namespace _Project.Scripts.Interactions
     {
         private Action _onSuccessAction = null;
         private Action _onTaskCloseAction = null;
+        
+        [SerializeField] private GameObject taskBGGameObject;
+        
+        private void OnEnable()
+        {
+            taskBGGameObject.transform.localScale = Vector3.zero;
+            taskBGGameObject.LeanScale(new Vector3(1, 1, 1), .5f).setEaseOutBack();
+        }
+        
         public void Init(Action onSuccessAction, Action onTaskCloseAction)
         {
             _onSuccessAction = onSuccessAction;
@@ -21,6 +30,14 @@ namespace _Project.Scripts.Interactions
         protected void TaskClosed()
         {
             _onTaskCloseAction?.Invoke();
+        }
+        
+        public void CloseTask()
+        {
+            taskBGGameObject.LeanScale(Vector3.zero, .5f).setEaseInBack().setOnComplete(() =>
+            {
+                TaskClosed();
+            });
         }
     }
 }

@@ -13,6 +13,7 @@ namespace _Project.Scripts.UI
         [SerializeField] private TextChatItem _textChatItemPrefab;
         [SerializeField] private TMP_InputField _chatMessageInputField;
         [SerializeField] private GameObject _chatUIHolder;
+        [SerializeField] private GameObject _chatUIHolderBgGameObject;
 
         [SerializeField] private Sprite myMessageSprite, otherMessageSprite;
 
@@ -29,7 +30,8 @@ namespace _Project.Scripts.UI
         private void ONNewChatMessageReceived(string playerName, string message, bool isLocalPlayer)
         {
             TextChatItem _textChatItem = Instantiate(_textChatItemPrefab, chatMessageContent);
-            _textChatItem.Setup(playerName, message, isLocalPlayer ? myMessageSprite : otherMessageSprite);
+            _textChatItem.Setup(isLocalPlayer ? "You" : playerName, message, 
+                isLocalPlayer ? myMessageSprite : otherMessageSprite);
         }
 
         public void OnSendButtonClick()
@@ -54,8 +56,24 @@ namespace _Project.Scripts.UI
 
         public void ToggleChatUI()
         {
-            _chatUIHolder.SetActive(!_chatUIHolder.activeSelf);
-            AlwaysOnUIManager.onUpdatePlayerInput?.Invoke(_chatUIHolder.activeSelf, GameUI.ChatPanel);
+            bool chatUIState = !_chatUIHolder.activeSelf;
+
+            if (chatUIState)
+            {
+                _chatUIHolderBgGameObject.transform.localScale = Vector3.zero;
+                _chatUIHolder.SetActive(true);
+                _chatUIHolderBgGameObject.LeanScale(new Vector3(1, 1, 1), .5f).setEaseOutBack();
+            }
+
+            else
+            {
+                _chatUIHolderBgGameObject.LeanScale(Vector3.zero, .5f).setEaseInBack().setOnComplete(() =>
+                {
+                    _chatUIHolder.SetActive(false);
+                });
+            }
+            
+            AlwaysOnUIManager.onUpdatePlayerInput?.Invoke(chatUIState, GameUI.ChatPanel);
         }
         
         public void HideChatUI()

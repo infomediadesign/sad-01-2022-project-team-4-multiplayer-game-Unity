@@ -286,7 +286,7 @@ namespace _Project.Scripts.Networking
             bool isLocalPlayer = p.id.Equals(playerID);
             playerGO.name = $"{p.userName} : {p.id}";
             PlayerSetup playerSetup = playerGO.GetComponent<PlayerSetup>();
-            playerSetup.SetupPlayer(isLocalPlayer, p.modelIndex);
+            playerSetup.SetupPlayer(isLocalPlayer, p.modelIndex, p.userName);
             if (isLocalPlayer)
             {
                 myPlayerController = playerGO.GetComponent<PlayerController>();
@@ -353,6 +353,16 @@ namespace _Project.Scripts.Networking
             isGameStarted = false;
             socket?.Disconnect();
             SceneManager.LoadScene("Main");
+
+            lock (playerIDToPlayerDictionary)
+            {
+                playerIDToPlayerDictionary.Clear();
+            }
+
+            lock (playerIDToPlayerGameObjectDictionary)
+            {
+                playerIDToPlayerGameObjectDictionary.Clear();
+            }
         }
 
         public void SendTaskFinished()

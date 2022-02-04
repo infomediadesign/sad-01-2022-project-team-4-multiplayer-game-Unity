@@ -9,6 +9,7 @@ using UnityEngine;
 public class AlwaysOnUIManager : MonoBehaviour
 {
     [SerializeField] private GameObject errorMessagePanel;
+    [SerializeField] private GameObject errorMessagePanelBgGameObject;
     [SerializeField] private TextMeshProUGUI errorMessagePanelTextMeshProUGUI;
     
     [SerializeField] private TextMeshProUGUI gameCodeTextMeshProUGUI;
@@ -23,8 +24,10 @@ public class AlwaysOnUIManager : MonoBehaviour
     [SerializeField] private ChatManager _chatManager;
     [SerializeField] private GameObject leaveRoomButtonGO;
     [SerializeField] private GameObject gameStartedPanel;
+    [SerializeField] private GameObject gameStartedPanelBgGameObject;
     [SerializeField] private TextMeshProUGUI gameStartedTextMeshProUGUI;
     [SerializeField] private GameObject winnerPanel;
+    [SerializeField] private GameObject winnerPanelBgGameObject;
     [SerializeField] private TextMeshProUGUI winnerNameTextMeshProUGUI;
 
     private void Awake()
@@ -87,13 +90,20 @@ public class AlwaysOnUIManager : MonoBehaviour
 
     private IEnumerator DisplayErrorMessageRoutine(string errorMessage)
     {
+        errorMessagePanelBgGameObject.transform.localScale = Vector3.zero;
         errorMessagePanelTextMeshProUGUI.SetText(errorMessage);
         errorMessagePanel.SetActive(true);
+        errorMessagePanelBgGameObject.LeanScale(new Vector3(1, 1, 1), .5f).setEaseOutBack();
 
         yield return new WaitForSecondsRealtime(2f);
-            
-        errorMessagePanel.SetActive(false);
-        errorMessagePanelTextMeshProUGUI.SetText("");
+
+        errorMessagePanelBgGameObject.LeanScale(Vector3.zero, .5f).setEaseInBack().
+            setOnComplete(() =>
+        {
+            errorMessagePanel.SetActive(false);
+            errorMessagePanelTextMeshProUGUI.SetText("");
+        });
+
     }
 
     public void OnLeaveRoomClick()
@@ -104,9 +114,10 @@ public class AlwaysOnUIManager : MonoBehaviour
 
     public void SetGameStartingPanelState(bool state)
     {
-        StopCoroutine(GameStartingSequenceRoutine());
         if (state)
         {
+            gameStartedPanelBgGameObject.transform.localScale = Vector3.zero;
+            gameStartedTextMeshProUGUI.transform.localScale = Vector3.zero;
             gameStartedPanel.SetActive(true);
             StartCoroutine(GameStartingSequenceRoutine());
         }
@@ -118,25 +129,46 @@ public class AlwaysOnUIManager : MonoBehaviour
 
     private IEnumerator GameStartingSequenceRoutine()
     {
+        gameStartedPanelBgGameObject.LeanScale(new Vector3(1, 1, 1), .5f).setEaseOutBack();
         for (int i = 10; i > 0; i--)
         {
             gameStartedTextMeshProUGUI.SetText($"Game Starting in \n {i}");
+            gameStartedTextMeshProUGUI.transform.LeanScale(new Vector3(1, 1, 1), .5f).setEaseOutBack().
+            setOnComplete(
+            () =>
+            {
+                gameStartedTextMeshProUGUI.transform.LeanScale(Vector3.zero, .5f).setEaseInBack();
+            });
+
+            if (i == 1)
+            {
+                break;
+            }
             yield return new WaitForSecondsRealtime(1f);
         }
-        gameStartedPanel.SetActive(false);
+
+        gameStartedPanelBgGameObject.transform.LeanScale(Vector3.zero, .5f).setEaseInBack().setOnComplete(() =>
+        {
+            gameStartedPanel.SetActive(false);
+        });
     }
 
     public void SetWinnerPanelState(string winnerName)
     {
+        winnerPanelBgGameObject.transform.localScale = Vector3.zero;
         winnerNameTextMeshProUGUI.SetText($"Winner is \n {winnerName}");
         winnerPanel.SetActive(true);
+        winnerPanelBgGameObject.LeanScale(new Vector3(1, 1, 1), .5f).setEaseOutBack();
         ONUpdatePlayerInput(true, GameUI.WinnerPanel);
     }
 
     public void OnCloseWinnerPanelClick()
     {
-        winnerPanel.SetActive(false);
-        ONUpdatePlayerInput(false, GameUI.WinnerPanel);
+        winnerPanelBgGameObject.LeanScale(Vector3.zero, .5f).setEaseInBack().setOnComplete(() =>
+        {
+            winnerPanel.SetActive(false);
+            ONUpdatePlayerInput(false, GameUI.WinnerPanel);
+        });
     }
 
     public void MainMenuLoaded()
@@ -149,6 +181,7 @@ public class AlwaysOnUIManager : MonoBehaviour
         gameCodeHolder.SetActive(false);
         roomPlayerCountHolder.SetActive(false);
         errorMessagePanel.SetActive(false);
+        leaveRoomButtonGO.SetActive(false);
         gameUIsEnabled.Clear();
     }
 }

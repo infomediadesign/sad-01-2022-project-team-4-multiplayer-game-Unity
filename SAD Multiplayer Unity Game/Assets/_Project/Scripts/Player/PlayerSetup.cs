@@ -1,4 +1,5 @@
 using _Project.Scripts.Utils;
+using TMPro;
 using UnityEngine;
 
 namespace _Project.Scripts.Player
@@ -9,8 +10,10 @@ namespace _Project.Scripts.Player
         [SerializeField] private Behaviour[] behavioursToToggle;
         [SerializeField] private GameObject[] gameObjectsToToggle;
         [SerializeField] private GameObject defaultModel;
+        [SerializeField] private TextMeshProUGUI playerNameTextMeshProUGUI;
+        [SerializeField] private GameObject playerNameParent;
 
-        public void SetupPlayer(bool isLocalPlayer, int modelIndex)
+        public void SetupPlayer(bool isLocalPlayer, int modelIndex, string playerName)
         {
             Debug.Log("Setup Player");
             this.isLocalPlayer = isLocalPlayer;
@@ -34,10 +37,15 @@ namespace _Project.Scripts.Player
             
             //Assign a Cool Character
             defaultModel.SetActive(false);
+            playerNameParent.SetActive(false);
             if (!isLocalPlayer)
             {
                 GameObject coolModel = ReferenceManager.GetInstance().availableModels[modelIndex];
                 GameObject coolModelClone = Instantiate(coolModel, Vector3.zero, Quaternion.identity, transform);
+                
+                //Set Player Name
+                playerNameParent.SetActive(true);
+                playerNameTextMeshProUGUI.SetText(playerName);
             }
         }
     }

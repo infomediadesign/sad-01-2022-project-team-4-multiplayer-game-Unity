@@ -47,6 +47,11 @@ namespace _Project.Scripts.Player
         {
             if (interactables == null || interactables.Count == 0)
             {
+                if(currentHighlightedInteractable != null && lastMat != null)
+                {
+                    currentHighlightedInteractable.GetComponent<Renderer>().material =
+                        lastMat;
+                }
                 return;
             }
         

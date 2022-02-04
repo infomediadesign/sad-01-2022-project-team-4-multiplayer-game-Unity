@@ -7,12 +7,7 @@ namespace _Project.Scripts.Interactions
             // Task Complete.
             TaskCompleted();
             //Close Task
-            TaskClosed();
-        }
-        
-        public void CloseTask()
-        {
-            TaskClosed();
+            CloseTask();
         }
     }
 }
